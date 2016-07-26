@@ -11,7 +11,7 @@ except:
     walk = os.path.walk
 
 if len(sys.argv) != 3:
-    print("Usage: {} <directory whoms content will be walked and hashed> <where to create directory that will hold hashes>".format(sys.argv[0]))
+    print("Usage: {} <directory to scan for files to hash> <where to create directory that will hold the hashes>".format(sys.argv[0]))
     sys.exit(1)
 
 manager     = multiprocessing.Manager()
