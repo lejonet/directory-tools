@@ -111,19 +111,19 @@ queue.join()
 for worker in workers:
     worker.terminate()
 
+
 if sys.version_info.major < 3:
     iterator = files_dict.items()
 else:
     iterator = files_dict.iteritems()
 
-key_list = files_dict.keys()
-key_list.sort()
+tuples = sorted(iterator, key=lambda data: data[1]["hash"])
+iterator = iter(tuples)
 
 with open("{}/hashes/{}.all_hashes".format(hashes_dir, start_point), "w") as f:
-    for file in key_list:
-        tmp = files_dict[file]
-        logger.debug("{} {}".format(file, tmp["hash"]))
+    for file, data in iterator:
+        logger.debug("{} {}".format(file, data["hash"]))
         if hashes_only:
-            f.write("{}\n".format(tmp["hash"]))
+            f.write("{}\n".format(data["hash"]))
         else:
-            f.write("{} {}\n".format(file, tmp["hash"]))
+            f.write("{} {}\n".format(file, data["hash"]))
