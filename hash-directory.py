@@ -1,29 +1,44 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
-import sys, hashlib, os, multiprocessing, errno, types, logging
+import sys, hashlib, os, multiprocessing, errno, types, logging, argparse
 FILE = 0
 ROOT = 1
+
+logger        = logging.getLogger()
+streamhandler = logging.StreamHandler()
+logger.addHandler(streamhandler)
 
 try:
     walk = os.walk
 except:
     walk = os.path.walk
 
-if len(sys.argv) != 3:
-    print("Usage: {} <directory to scan for files to hash> <where to create directory that will hold the hashes>".format(sys.argv[0]))
-    sys.exit(1)
+parser = argparse.ArgumentParser(description="Scans a directory structure and hashes all the files in it")
+parser.add_argument("--debug", help="turns on debug messages", type=bool, dest="debug")
+parser.add_argument("--only-hashes", help="only outputs the hashes into the file with all hashes", type=bool, dest="hashes_only")
+parser.add_argument("start_point", type=str, help="the directory to start the recursive walk at")
+parser.add_argument("hashes_dir", type=str, help="the directory where the directory structure will be copied and hashes stored")
+
+args = parser.parse_args()
+
+hashes_only = args.hashes_only
+debug       = args.debug
+log_level   = logging.INFO
+if debug:
+    log_level = logging.DEBUG
+
+logger.setLevel(log_level)
+logger.debug("args: {}".format(args))
+logger.debug("hashes_only: {}".format(hashes_only))
 
 manager     = multiprocessing.Manager()
-start_point = sys.argv[1]
-hashes_dir  = sys.argv[2]
+start_point = args.start_point
+hashes_dir  = args.hashes_dir
 files_dict  = manager.dict()
-logger      = logging.getLogger()
+
 filehandler   = logging.FileHandler("{}/hashes/worker.log".format(hashes_dir))
-streamhandler = logging.StreamHandler()
 logger.addHandler(filehandler)
-logger.addHandler(streamhandler)
-logger.setLevel(logging.INFO)
 
 try:
     os.makedirs(hashes_dir+"/hashes")
@@ -101,7 +116,14 @@ if sys.version_info.major < 3:
 else:
     iterator = files_dict.iteritems()
 
-with open("{}/hashes/all_hashes".format(hashes_dir), "w") as f:
-    for key, value in iterator:
-        logger.info("{} {}".format(key, value["hash"]))
-        f.write("{} {}\n".format(key, value["hash"]))
+key_list = files_dict.keys()
+key_list.sort()
+
+with open("{}/hashes/{}.all_hashes".format(hashes_dir, start_point), "w") as f:
+    for file in key_list:
+        tmp = files_dict[file]
+        logger.debug("{} {}".format(file, tmp["hash"]))
+        if hashes_only:
+            f.write("{}\n".format(tmp["hash"]))
+        else:
+            f.write("{} {}\n".format(file, tmp["hash"]))
