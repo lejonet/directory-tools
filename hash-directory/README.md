@@ -4,6 +4,7 @@ Usage
 There's also a few flags:
 + -d, --debug, turns on very verbose logging
 + -o, --only-hashes, writes only the hashes into the all_hashes file, instead of file hash pairs, which is default
++ -f, --log-to-file log_file, logs all output to log_file in addition to stdout/stderr logging
 + -h, --help, shows usage directions
 
 Example
