@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
-import argparse, logging, os, errno, sys, magic, shutil, mimetypes
+# Python stdlib
+import argparse, logging, os, errno, sys, shutil, mimetypes, filecmp
+
+# External
+import magic
 
 parser = argparse.ArgumentParser(description="Sorts a directory, recursively, by filetype")
 parser.add_argument("target_directory", type=str, help="the directory to be sorted")
@@ -54,7 +58,7 @@ for root, dirs, files in walk(target_directory):
         mime = magic.from_file(file_path, mime=True)
 
         store_dir = None
-        if mime in ['application/octet-stream', 'text/plain']:
+        if mime in ['application/octet-stream', 'text/plain'] or mimetypes.guess_extension(mime) == None:
             store_dir = os.path.splitext(file_path)[1]
         else:
             store_dir = mimetypes.guess_extension(mime)
@@ -68,4 +72,6 @@ for root, dirs, files in walk(target_directory):
                 logger.warning("File {} was not moved due to: {}".format(file, str(e)))
                 continue
         
-        shutil.copy2(file_path, "{}/{}".format(file_target_dir, file))
+        file_target_path = "{}/{}".format(file_target_dir, file)
+        if not (os.path.isfile(file_target_path) and filecmp.cmp(file_path, file_target_path, shallow=False)):
+            shutil.copy2(file_path, file_target_path)
