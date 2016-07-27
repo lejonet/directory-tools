@@ -2,8 +2,8 @@ Usage
 =====
 `hash-directory.py <directory to scan for files to hash> <where to create directory that will hold the hashes>`
 There's also a few flags:
-+ --debug, turns on very verbose logging
-+ --only-hashes, writes only the hashes into the all_hashes file, instead of file hash pairs, which is default
++ -d, --debug, turns on very verbose logging
++ -o, --only-hashes, writes only the hashes into the all_hashes file, instead of file hash pairs, which is default
 + -h, --help, shows usage directions
 
 Example

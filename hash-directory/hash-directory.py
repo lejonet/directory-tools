@@ -15,9 +15,9 @@ except:
     walk = os.path.walk
 
 parser = argparse.ArgumentParser(description="Scans a directory structure and hashes all the files in it")
-parser.add_argument("--debug", help="turns on debug messages", action="store_true")
-parser.add_argument("--only-hashes", help="only outputs the hashes into the file with all hashes", action="store_true")
-parser.add_argument("--log-to-file", type=str, help="will also log information to log_file, in addition to stdout/stderr")
+parser.add_argument("--debug", "-d", help="turns on debug messages", action="store_true")
+parser.add_argument("--only-hashes", "-o", help="only outputs the hashes into the file with all hashes", action="store_true")
+parser.add_argument("--log-to-file", "-f", type=str, help="will also log information to log_file, in addition to stdout/stderr")
 parser.add_argument("start_point", type=str, help="the directory to start the recursive walk at")
 parser.add_argument("hashes_dir", type=str, help="the directory where the directory structure will be copied and hashes stored")
 
