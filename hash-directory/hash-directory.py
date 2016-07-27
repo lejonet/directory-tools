@@ -58,7 +58,7 @@ except OSError as e:
 queue   = manager.JoinableQueue()
 workers = []
 
-def hash_file(file, hasher, blocksize=2**64*1024, size_to_hash):
+def hash_file(file, hasher, blocksize=2**17, size_to_hash):
     buf = file.read(blocksize)
     while len(buf) > 0 and file.tell() <= size_to_hash and buf != '': # 64kB * 64000 = 4MB
         hasher.update(buf)
