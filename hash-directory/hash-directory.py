@@ -18,6 +18,7 @@ parser = argparse.ArgumentParser(description="Scans a directory structure and ha
 parser.add_argument("--debug", "-d", help="turns on debug messages", action="store_true")
 parser.add_argument("--only-hashes", "-o", help="only outputs the hashes into the file with all hashes", action="store_true")
 parser.add_argument("--log-to-file", "-f", type=str, help="will also log information to log_file, in addition to stdout/stderr")
+parser.add_argument("--size-hash", "-s", type=int, help="the amount, in kB, that should be hashed of the files (default 256kB)", dest="size_hash")
 parser.add_argument("start_point", type=str, help="the directory to start the recursive walk at")
 parser.add_argument("hashes_dir", type=str, help="the directory where the directory structure will be copied and hashes stored")
 
@@ -25,6 +26,7 @@ args = parser.parse_args()
 
 hashes_only = args.hashes_only
 debug       = args.debug
+size_hash   = args.size_hash * 1024 if args.size_hash else 256 * 1024
 log_level   = logging.INFO
 if debug:
     log_level = logging.DEBUG
@@ -56,14 +58,14 @@ except OSError as e:
 queue   = manager.JoinableQueue()
 workers = []
 
-def hash_file(file, hasher, blocksize=2**16):
+def hash_file(file, hasher, blocksize=2**64*1024, size_to_hash):
     buf = file.read(blocksize)
-    while len(buf) > 0 and file.tell() <= blocksize*64000 and buf != '': # 64kB * 64000 = 4MB
+    while len(buf) > 0 and file.tell() <= size_to_hash and buf != '': # 64kB * 64000 = 4MB
         hasher.update(buf)
         buf = file.read(blocksize)
     return hasher.hexdigest()
 
-def worker(queue, files, hashes_dir, logger):
+def worker(queue, files, hashes_dir, logger, size_to_hash):
     hasher = hashlib.sha256()
     while True:
         item = queue.get()
@@ -98,7 +100,7 @@ def worker(queue, files, hashes_dir, logger):
 
 
 for i in range(multiprocessing.cpu_count()):
-    p = multiprocessing.Process(target=worker, args=(queue, files_dict, hashes_dir+"/hashes", logger))
+    p = multiprocessing.Process(target=worker, args=(queue, files_dict, hashes_dir+"/hashes", logger, size_hash))
     p.start()
     workers.append(p)
 
