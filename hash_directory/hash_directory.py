@@ -103,7 +103,7 @@ def _worker(queue, files, hashes_dir, logger, size_to_hash):
                                       # dict
         if not os.path.isfile(hash_file_path):
             with open(hash_file_path, "w") as out_file:
-                with open(file_path, "r") as in_file:
+                with open(file_path, "rb") as in_file:
                     hasher = hashlib.sha256()
                     hash = _hash_file(in_file, hasher, size_to_hash)
                     file_dict["hash"] = hash
