@@ -51,7 +51,7 @@ def _create_sorted_directory(sorted_directory, target_directory):
     try:
         os.makedirs("{}/sorted-{}".format(sorted_directory, target_directory))
     except IOError as e:
-        if e.errno == errno.EACCESS:
+        if e.errno == errno.EACCES:
             if logger: logger.error("Cannot access {}, please give a directory which you have read/write access too".format(sorted_directory))
             sys.exit(1)
     except OSError as e:
