@@ -69,7 +69,7 @@ def _create_hashes_directory(hashes_dir):
     try:
         os.makedirs("{}/hashes".format(hashes_dir))
     except IOError as e:
-        if e.errno == errno.EACCESS:
+        if e.errno == errno.EACCES:
             logger.error("Cannot access {}, please give a directory which you have read/write access too".format(hashes_dir))
             sys.exit(1)
     except OSError as e:
